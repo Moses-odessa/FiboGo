@@ -31,11 +31,8 @@ func check(trueAnswerQty int, mistakeAnswerQty int, resultChanel chan resultData
 			trueCount = 0
 			// Convert structs to JSON.
 			fiboStruct := fiboData{i, currentFibo}
-			fiboJSON, err := json.Marshal(fiboStruct)
-			if err != nil {
-				log.Fatal(err)
-			}
-			fmt.Printf("Number of mistake: %d (of %d). True answer is: %s\n", mistakeCount, mistakeAnswerQty, fiboJSON)
+			fmt.Printf("Number of mistake: %d (of %d). True answer is: %s\n",
+				mistakeCount, mistakeAnswerQty, toJSON(fiboStruct))
 		} else {
 			trueCount++
 			fmt.Printf("Correct!!! Number of correct answers: %d (need %d)\n", trueCount, trueAnswerQty)
@@ -84,6 +81,14 @@ func userInterface(trueAnswerQty int, mistakeAnswerQty int, answerTime time.Dura
 		var input string
 		fmt.Scanln(&input)
 	}
+}
+
+func toJSON(v interface{}) []byte {
+	valueJSON, err := json.Marshal(v)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return valueJSON
 }
 
 type resultData struct {
