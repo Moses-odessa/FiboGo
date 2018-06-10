@@ -17,19 +17,24 @@ func fibo(i int) int {
 	return result
 }
 
+type resulData struct {
+	value    int
+	fromUser bool
+}
+
 func main() {
-	var resultChanel = make(chan [2]int)
+	var resultChanel = make(chan resulData)
 
 	go func() { //check
 		for i := 1; i <= 10; {
 			fmt.Println("Enter next fibo value:")
 			msg := <-resultChanel
 			currentFibo := fibo(i)
-			if msg[1] == i {
+			if !msg.fromUser {
 				fmt.Printf("You late. True answer is: %d", currentFibo)
 				fmt.Println()
 			} else {
-				if msg[0] != currentFibo {
+				if msg.value != currentFibo {
 					fmt.Printf("Your answer wrong. True answer is: %d", currentFibo)
 					fmt.Println()
 				} else {
@@ -45,7 +50,7 @@ func main() {
 		ticker := time.NewTicker(time.Second * 10)
 		go func() { //ticker
 			for range ticker.C {
-				var result = [2]int{0, nextOrder}
+				var result = resulData{0, false}
 				resultChanel <- result
 				nextOrder++
 			}
@@ -55,7 +60,7 @@ func main() {
 		fmt.Scanf("%d\n", &nextInput)
 		ticker.Stop()
 		if nextOrder <= 10 {
-			var result = [2]int{nextInput, 0}
+			var result = resulData{nextInput, true}
 			resultChanel <- result
 			nextOrder++
 		}
