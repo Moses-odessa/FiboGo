@@ -17,6 +17,27 @@ func fibo(i int) int {
 	return result
 }
 
+func check(mumbersAmount int, resultChanel chan resulData) {
+	for i := 1; i <= mumbersAmount; {
+		fmt.Println("Enter next fibo value (within 10 seconds):")
+		msg := <-resultChanel
+		currentFibo := fibo(i)
+		if !msg.fromUser {
+			fmt.Printf("You late. True answer is: %d", currentFibo)
+			fmt.Println()
+		} else {
+			if msg.value != currentFibo {
+				fmt.Printf("Your answer wrong. True answer is: %d", currentFibo)
+				fmt.Println()
+			} else {
+				fmt.Println("Correct")
+			}
+		}
+		i++
+	}
+	fmt.Println("Press enter for exit...")
+}
+
 type resulData struct {
 	value    int
 	fromUser bool
@@ -27,26 +48,7 @@ func main() {
 	const mumbersAmount = 10
 	const answerTime = 10
 
-	go func() { //check
-		for i := 1; i <= mumbersAmount; {
-			fmt.Println("Enter next fibo value:")
-			msg := <-resultChanel
-			currentFibo := fibo(i)
-			if !msg.fromUser {
-				fmt.Printf("You late. True answer is: %d", currentFibo)
-				fmt.Println()
-			} else {
-				if msg.value != currentFibo {
-					fmt.Printf("Your answer wrong. True answer is: %d", currentFibo)
-					fmt.Println()
-				} else {
-					fmt.Println("Correct")
-				}
-			}
-			i++
-		}
-		fmt.Println("Press enter for exit...")
-	}()
+	go check(mumbersAmount, resultChanel)
 
 	for nextOrder := 1; nextOrder <= mumbersAmount; { //input
 		ticker := time.NewTicker(time.Second * answerTime)
