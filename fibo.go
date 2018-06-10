@@ -17,53 +17,66 @@ func fibo(i int) int {
 	return result
 }
 
-func check(mumbersAmount int, resultChanel chan resulData) {
-	for i := 1; i <= mumbersAmount; {
-		fmt.Println("Enter next fibo value (within 10 seconds):")
+func check(trueAnswerQty int, mistakeAnswerQty int, resultChanel chan resulData) {
+	var mistakeCount = 0
+	var trueCount = 0
+	for i := 1; trueCount < trueAnswerQty && mistakeCount < mistakeAnswerQty; i++ {
+		fmt.Printf("Enter %d fibo value (within 10 seconds):\n", i)
 		msg := <-resultChanel
 		currentFibo := fibo(i)
-		if !msg.fromUser {
-			fmt.Printf("You late. True answer is: %d", currentFibo)
-			fmt.Println()
+		if !msg.fromUser || (msg.value != currentFibo && msg.fromUser) {
+			mistakeCount++
+			trueCount = 0
+			fmt.Printf("Number of mistake: %d (of %d). True answer is: {order: %d, value: %d}\n", mistakeCount, mistakeAnswerQty, i, currentFibo)
 		} else {
-			if msg.value != currentFibo {
-				fmt.Printf("Your answer wrong. True answer is: %d", currentFibo)
-				fmt.Println()
-			} else {
-				fmt.Println("Correct")
-			}
+			trueCount++
+			fmt.Printf("Correct!!! Number of correct answers: %d (need %d)\n", trueCount, trueAnswerQty)
+
 		}
-		i++
+	}
+	if mistakeCount == mistakeAnswerQty {
+		fmt.Printf("It was %d mistakes. ", mistakeAnswerQty)
+	} else {
+		fmt.Printf("You have %d true answers. ", trueCount)
 	}
 	fmt.Println("Press enter for exit...")
 }
 
-func userInterface(mumbersAmount int, answerTime time.Duration, resultChanel chan resulData) {
-	var nextOrder = 1
-	for nextOrder <= mumbersAmount { //input
+func userInterface(trueAnswerQty int, mistakeAnswerQty int, answerTime time.Duration, resultChanel chan resulData) {
+	var mistakeCount = 0
+	var trueCount = 0
+
+	for nextOrder := 1; mistakeCount < mistakeAnswerQty && trueCount < trueAnswerQty; nextOrder++ {
 		ticker := time.NewTicker(time.Second * answerTime)
 		go func() { //ticker
 			for range ticker.C {
 				var result = resulData{0, false}
 				resultChanel <- result
 				nextOrder++
+				mistakeCount++
+				trueCount = 0
 			}
 		}()
 
 		var nextInput int
 		fmt.Scanf("%d\n", &nextInput)
 		ticker.Stop()
-		if nextOrder <= mumbersAmount {
+		if nextInput == fibo(nextOrder) {
+			trueCount++
+		} else {
+			mistakeCount++
+			trueCount = 0
+		}
+		if trueCount <= trueAnswerQty && mistakeCount <= mistakeAnswerQty {
 			var result = resulData{nextInput, true}
 			resultChanel <- result
 		}
-		nextOrder++
 	}
 
-	if nextOrder < (mumbersAmount + 2) {
-		var input string
-		fmt.Scanln(&input)
-	}
+	//if nextOrder < (mumbersAmount + 2) {
+	var input string
+	fmt.Scanln(&input)
+	//}
 }
 
 type resulData struct {
@@ -73,11 +86,12 @@ type resulData struct {
 
 func main() {
 	var resultChanel = make(chan resulData)
-	const mumbersAmount = 10
+	const trueAnswerQty = 5
+	const mistakeAnswerQty = 3
 	const answerTime = 10
 
-	go check(mumbersAmount, resultChanel)
+	go check(trueAnswerQty, mistakeAnswerQty, resultChanel)
 
-	userInterface(mumbersAmount, answerTime, resultChanel)
+	userInterface(trueAnswerQty, mistakeAnswerQty, answerTime, resultChanel)
 
 }
