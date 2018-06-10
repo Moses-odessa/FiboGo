@@ -39,7 +39,6 @@ func check(trueAnswerQty int, mistakeAnswerQty int, resultChanel chan resulData)
 	} else {
 		fmt.Printf("You have %d true answers. ", trueCount)
 	}
-	fmt.Println("Press enter for exit...")
 }
 
 func userInterface(trueAnswerQty int, mistakeAnswerQty int, answerTime time.Duration, resultChanel chan resulData) {
@@ -73,10 +72,6 @@ func userInterface(trueAnswerQty int, mistakeAnswerQty int, answerTime time.Dura
 		}
 	}
 
-	//if nextOrder < (mumbersAmount + 2) {
-	var input string
-	fmt.Scanln(&input)
-	//}
 }
 
 type resulData struct {
@@ -86,12 +81,16 @@ type resulData struct {
 
 func main() {
 	var resultChanel = make(chan resulData)
-	const trueAnswerQty = 5
+	const trueAnswerQty = 10
 	const mistakeAnswerQty = 3
 	const answerTime = 10
 
 	go check(trueAnswerQty, mistakeAnswerQty, resultChanel)
 
 	userInterface(trueAnswerQty, mistakeAnswerQty, answerTime, resultChanel)
+
+	fmt.Println("Press enter for exit...")
+	var input string
+	fmt.Scanln(&input)
 
 }
