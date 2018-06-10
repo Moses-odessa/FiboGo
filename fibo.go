@@ -50,7 +50,8 @@ func main() {
 
 	go check(mumbersAmount, resultChanel)
 
-	for nextOrder := 1; nextOrder <= mumbersAmount; { //input
+	var nextOrder = 1
+	for nextOrder <= mumbersAmount { //input
 		ticker := time.NewTicker(time.Second * answerTime)
 		go func() { //ticker
 			for range ticker.C {
@@ -66,10 +67,12 @@ func main() {
 		if nextOrder <= mumbersAmount {
 			var result = resulData{nextInput, true}
 			resultChanel <- result
-			nextOrder++
 		}
+		nextOrder++
 	}
 
-	var input string
-	fmt.Scanln(&input)
+	if nextOrder < (mumbersAmount + 2) {
+		var input string
+		fmt.Scanln(&input)
+	}
 }
