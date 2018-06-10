@@ -38,18 +38,7 @@ func check(mumbersAmount int, resultChanel chan resulData) {
 	fmt.Println("Press enter for exit...")
 }
 
-type resulData struct {
-	value    int
-	fromUser bool
-}
-
-func main() {
-	var resultChanel = make(chan resulData)
-	const mumbersAmount = 10
-	const answerTime = 10
-
-	go check(mumbersAmount, resultChanel)
-
+func userInterface(mumbersAmount int, answerTime time.Duration, resultChanel chan resulData) {
 	var nextOrder = 1
 	for nextOrder <= mumbersAmount { //input
 		ticker := time.NewTicker(time.Second * answerTime)
@@ -75,4 +64,20 @@ func main() {
 		var input string
 		fmt.Scanln(&input)
 	}
+}
+
+type resulData struct {
+	value    int
+	fromUser bool
+}
+
+func main() {
+	var resultChanel = make(chan resulData)
+	const mumbersAmount = 10
+	const answerTime = 10
+
+	go check(mumbersAmount, resultChanel)
+
+	userInterface(mumbersAmount, answerTime, resultChanel)
+
 }
