@@ -25,14 +25,12 @@ func check(trueAnswerQty int, mistakeAnswerQty int, resultChanel chan resultData
 	for i := 1; trueCount < trueAnswerQty && mistakeCount < mistakeAnswerQty; i++ {
 		fmt.Printf("Enter %d fibo value (within 10 seconds):\n", i)
 		msg := <-resultChanel
-		currentFibo := fibo(i)
-		if !msg.fromUser || (msg.value != currentFibo && msg.fromUser) {
+		currentFibo := fiboData{i, fibo(i)}
+		if !msg.fromUser || (msg.value != currentFibo.Value && msg.fromUser) {
 			mistakeCount++
 			trueCount = 0
-			// Convert structs to JSON.
-			fiboStruct := fiboData{i, currentFibo}
 			fmt.Printf("Number of mistake: %d (of %d). True answer is: %s\n",
-				mistakeCount, mistakeAnswerQty, toJSON(fiboStruct))
+				mistakeCount, mistakeAnswerQty, toJSON(currentFibo))
 		} else {
 			trueCount++
 			fmt.Printf("Correct!!! Number of correct answers: %d (need %d)\n", trueCount, trueAnswerQty)
