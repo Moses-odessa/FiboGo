@@ -35,10 +35,11 @@ func check(trueAnswerQty int, mistakeAnswerQty int, resultChanel chan resulData)
 		}
 	}
 	if mistakeCount == mistakeAnswerQty {
-		fmt.Printf("It was %d mistakes. ", mistakeAnswerQty)
+		fmt.Printf("It was %d mistakes.\n", mistakeAnswerQty)
 	} else {
-		fmt.Printf("You have %d true answers. ", trueCount)
+		fmt.Printf("You have %d true answers.\n", trueCount)
 	}
+	fmt.Println("Press enter for exit...")
 }
 
 func userInterface(trueAnswerQty int, mistakeAnswerQty int, answerTime time.Duration, resultChanel chan resulData) {
@@ -71,7 +72,10 @@ func userInterface(trueAnswerQty int, mistakeAnswerQty int, answerTime time.Dura
 			resultChanel <- result
 		}
 	}
-
+	if mistakeCount == mistakeAnswerQty || trueCount == trueAnswerQty {
+		var input string
+		fmt.Scanln(&input)
+	}
 }
 
 type resulData struct {
@@ -88,9 +92,5 @@ func main() {
 	go check(trueAnswerQty, mistakeAnswerQty, resultChanel)
 
 	userInterface(trueAnswerQty, mistakeAnswerQty, answerTime, resultChanel)
-
-	fmt.Println("Press enter for exit...")
-	var input string
-	fmt.Scanln(&input)
 
 }
