@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 )
 
@@ -17,7 +19,7 @@ func fibo(i int) int {
 	return result
 }
 
-func check(trueAnswerQty int, mistakeAnswerQty int, resultChanel chan resulData) {
+func check(trueAnswerQty int, mistakeAnswerQty int, resultChanel chan resultData) {
 	var mistakeCount = 0
 	var trueCount = 0
 	for i := 1; trueCount < trueAnswerQty && mistakeCount < mistakeAnswerQty; i++ {
@@ -27,7 +29,13 @@ func check(trueAnswerQty int, mistakeAnswerQty int, resultChanel chan resulData)
 		if !msg.fromUser || (msg.value != currentFibo && msg.fromUser) {
 			mistakeCount++
 			trueCount = 0
-			fmt.Printf("Number of mistake: %d (of %d). True answer is: {order: %d, value: %d}\n", mistakeCount, mistakeAnswerQty, i, currentFibo)
+			// Convert structs to JSON.
+			fiboStruct := fiboData{i, currentFibo}
+			fiboJSON, err := json.Marshal(fiboStruct)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("Number of mistake: %d (of %d). True answer is: %s\n", mistakeCount, mistakeAnswerQty, fiboJSON)
 		} else {
 			trueCount++
 			fmt.Printf("Correct!!! Number of correct answers: %d (need %d)\n", trueCount, trueAnswerQty)
@@ -42,7 +50,7 @@ func check(trueAnswerQty int, mistakeAnswerQty int, resultChanel chan resulData)
 	fmt.Println("Press enter for exit...")
 }
 
-func userInterface(trueAnswerQty int, mistakeAnswerQty int, answerTime time.Duration, resultChanel chan resulData) {
+func userInterface(trueAnswerQty int, mistakeAnswerQty int, answerTime time.Duration, resultChanel chan resultData) {
 	var mistakeCount = 0
 	var trueCount = 0
 
@@ -50,7 +58,7 @@ func userInterface(trueAnswerQty int, mistakeAnswerQty int, answerTime time.Dura
 		ticker := time.NewTicker(time.Second * answerTime)
 		go func() { //ticker
 			for range ticker.C {
-				var result = resulData{0, false}
+				var result = resultData{0, false}
 				resultChanel <- result
 				nextOrder++
 				mistakeCount++
@@ -68,7 +76,7 @@ func userInterface(trueAnswerQty int, mistakeAnswerQty int, answerTime time.Dura
 			trueCount = 0
 		}
 		if trueCount <= trueAnswerQty && mistakeCount <= mistakeAnswerQty {
-			var result = resulData{nextInput, true}
+			var result = resultData{nextInput, true}
 			resultChanel <- result
 		}
 	}
@@ -78,13 +86,18 @@ func userInterface(trueAnswerQty int, mistakeAnswerQty int, answerTime time.Dura
 	}
 }
 
-type resulData struct {
+type resultData struct {
 	value    int
 	fromUser bool
 }
 
+type fiboData struct {
+	Order int
+	Value int
+}
+
 func main() {
-	var resultChanel = make(chan resulData)
+	var resultChanel = make(chan resultData)
 	const trueAnswerQty = 10
 	const mistakeAnswerQty = 3
 	const answerTime = 10
