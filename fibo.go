@@ -24,9 +24,11 @@ type resulData struct {
 
 func main() {
 	var resultChanel = make(chan resulData)
+	const mumbersAmount = 10
+	const answerTime = 10
 
 	go func() { //check
-		for i := 1; i <= 10; {
+		for i := 1; i <= mumbersAmount; {
 			fmt.Println("Enter next fibo value:")
 			msg := <-resultChanel
 			currentFibo := fibo(i)
@@ -46,8 +48,8 @@ func main() {
 		fmt.Println("Press enter for exit...")
 	}()
 
-	for nextOrder := 1; nextOrder <= 10; { //input
-		ticker := time.NewTicker(time.Second * 10)
+	for nextOrder := 1; nextOrder <= mumbersAmount; { //input
+		ticker := time.NewTicker(time.Second * answerTime)
 		go func() { //ticker
 			for range ticker.C {
 				var result = resulData{0, false}
@@ -59,7 +61,7 @@ func main() {
 		var nextInput int
 		fmt.Scanf("%d\n", &nextInput)
 		ticker.Stop()
-		if nextOrder <= 10 {
+		if nextOrder <= mumbersAmount {
 			var result = resulData{nextInput, true}
 			resultChanel <- result
 			nextOrder++
